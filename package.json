@@ -1,0 +1,30 @@
+{
+  "name": "agent-teams-panel",
+  "version": "1.0.0",
+  "description": "ClaudeCode AgentTeams visualize app",
+  "main": "dist/main.js",
+  "scripts": {
+    "copy-assets": "mkdir -p dist/styles && cp src/index.html dist/ && cp src/theme-init.js dist/ && cp src/styles/*.css dist/styles/",
+    "copy-vendor": "cp node_modules/@xterm/xterm/css/xterm.css dist/ && cp node_modules/@xterm/xterm/lib/xterm.js dist/ && cp node_modules/@xterm/addon-fit/lib/addon-fit.js dist/",
+    "build": "tsc && npm run copy-assets && npm run copy-vendor",
+    "dev": "npm run build && concurrently -k -n ts,assets,app \"tsc -w --preserveWatchOutput\" \"chokidar 'src/**/*.html' 'src/**/*.css' 'src/theme-init.js' -c 'npm run copy-assets'\" \"env -u ELECTRON_RUN_AS_NODE electronmon .\"",
+    "start": "npm run build && env -u ELECTRON_RUN_AS_NODE electron .",
+    "test": "test"
+  },
+  "author": "ryoya-fukushima",
+  "license": "MIT",
+  "devDependencies": {
+    "@types/node": "^25.5.0",
+    "chokidar-cli": "^3.0.0",
+    "concurrently": "^9.2.1",
+    "electron": "^41.0.4",
+    "electronmon": "^2.0.4",
+    "typescript": "^6.0.2"
+  },
+  "dependencies": {
+    "@electron/rebuild": "^4.0.3",
+    "@xterm/addon-fit": "^0.11.0",
+    "@xterm/xterm": "^6.0.0",
+    "node-pty": "^1.1.0"
+  }
+}

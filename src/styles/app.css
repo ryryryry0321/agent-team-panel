@@ -1,0 +1,247 @@
+:root {
+  --bg-base: #1e1e2e;
+  --bg-surface: #11111b;
+  --bg-header: #181825;
+  --border: #313244;
+  --shadow-color: rgba(0, 0, 0, 0.22);
+  --text-primary: #cdd6f4;
+  --text-heading: #f5f5ff;
+  --text-muted: #a6adc8;
+  --text-accent: #89b4fa;
+  --term-bg: #11111b;
+  --term-fg: #cdd6f4;
+  --term-cursor: #89b4fa;
+  --term-selection: #45475a;
+}
+
+:root[data-theme="light"] {
+  --bg-base: #eff1f5;
+  --bg-surface: #ffffff;
+  --bg-header: #e6e9ef;
+  --border: #ccd0da;
+  --shadow-color: rgba(0, 0, 0, 0.08);
+  --text-primary: #4c4f69;
+  --text-heading: #1e1e2e;
+  --text-muted: #6c6f85;
+  --text-accent: #1e66f5;
+  --term-bg: #ffffff;
+  --term-fg: #4c4f69;
+  --term-cursor: #1e66f5;
+  --term-selection: #ccd0da;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  height: 100vh;
+  font-family: -apple-system, BlinkMacSystemFont, sans-serif;
+  background: var(--bg-base);
+  color: var(--text-primary);
+  overflow: hidden;
+}
+
+.toolbar {
+  position: fixed;
+  top: 16px;
+  left: 16px;
+  right: 16px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  z-index: 1;
+}
+
+.app-title {
+  font-size: 18px;
+  font-weight: 700;
+  color: var(--text-heading);
+}
+
+.toolbar-meta {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 2px;
+}
+
+.session-name {
+  font-size: 12px;
+  color: var(--text-accent);
+}
+
+.status {
+  font-size: 13px;
+  color: var(--text-muted);
+}
+
+.main-content {
+  height: 100%;
+  padding: 84px 16px 16px;
+  display: grid;
+  grid-template-columns: 420px minmax(0, 1fr);
+  gap: 16px;
+}
+
+.surface {
+  background: var(--bg-surface);
+  border: 1px solid var(--border);
+  border-radius: 14px;
+  box-shadow: 0 20px 60px var(--shadow-color);
+  overflow: hidden;
+  min-height: 0;
+}
+
+.main-panel {
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
+}
+
+.workspace {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+  min-height: 0;
+}
+
+.panel-header {
+  padding: 12px 14px;
+  border-bottom: 1px solid var(--border);
+  background: var(--bg-header);
+  flex-direction: column;
+  gap: 4px;
+}
+
+.pane-title {
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--text-heading);
+}
+
+.pane-meta {
+  font-size: 11px;
+  color: var(--text-muted);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.main-terminal-wrap {
+  flex: 1;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+}
+
+.main-empty,
+.side-empty {
+  margin: 0;
+  padding: 18px;
+  color: var(--text-muted);
+  font-size: 12px;
+  line-height: 1.6;
+}
+
+.main-terminal {
+  flex: 1;
+  min-height: 0;
+  padding: 12px;
+}
+
+.side-panel-layout {
+  flex: 1;
+  min-height: 0;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+}
+
+.side-panels-scroll {
+  flex: 1;
+  min-height: 0;
+  min-width: 0;
+  overflow: auto;
+}
+
+.side-intro {
+  padding: 18px;
+  border-bottom: 1px solid var(--border);
+  background: var(--bg-header);
+  font-size: 13px;
+  color: var(--text-muted);
+  line-height: 1.6;
+}
+
+.side-panels {
+  padding: 16px;
+  display: grid;
+  grid-template-columns: repeat(2, minmax(480px, 480px));
+  grid-auto-rows: minmax(280px, 480px);
+  gap: 16px;
+  align-content: start;
+  width: max-content;
+  min-width: 100%;
+  min-height: 100%;
+}
+
+.side-pane {
+  min-height: 280px;
+  max-height: 480px;
+  display: flex;
+  flex-direction: column;
+  border: 1px solid var(--border);
+  border-radius: 14px;
+  overflow: hidden;
+  background: var(--bg-surface);
+}
+
+.pane-terminal {
+  flex: 1;
+  min-height: 240px;
+  padding: 12px;
+  overflow-y: auto;
+}
+
+.main-terminal .xterm {
+  height: 100%;
+}
+
+.theme-toggle {
+  background: var(--bg-header);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  color: var(--text-muted);
+  font-size: 18px;
+  width: 36px;
+  height: 36px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: background 0.2s, color 0.2s, border-color 0.2s;
+}
+
+.theme-toggle:hover {
+  color: var(--text-accent);
+  border-color: var(--text-accent);
+}
+
+@media (max-width: 980px) {
+  .toolbar {
+    align-items: flex-start;
+    flex-direction: column;
+  }
+
+  .main-content {
+    grid-template-columns: 1fr;
+  }
+
+  .side-panels {
+    grid-template-columns: 1fr;
+    width: 100%;
+  }
+}

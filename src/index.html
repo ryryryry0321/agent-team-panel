@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <meta
+    http-equiv="Content-Security-Policy"
+    content="default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline'"
+  />
+  <title>Agent Teams Panel</title>
+  <link rel="stylesheet" href="./xterm.css" />
+  <link rel="stylesheet" href="./styles/app.css" />
+  <script src="./theme-init.js"></script>
+</head>
+<body>
+  <div class="toolbar">
+    <div class="app-title">Claude Agent Teams Panel</div>
+    <button id="themeToggle" class="theme-toggle" aria-label="テーマ切り替え"></button>
+    <div class="toolbar-meta">
+      <span id="sessionName" class="session-name"></span>
+      <span id="status" class="status">Claude Code を起動しています...</span>
+    </div>
+  </div>
+  <div class="main-content">
+    <section class="surface main-panel">
+      <header class="panel-header">
+        <strong id="mainPaneTitle" class="pane-title">Main Claude</strong>
+        <span id="mainPaneMeta" class="pane-meta">メイン pane の起動を待っています。</span>
+      </header>
+      <div class="main-terminal-wrap">
+        <p id="mainEmpty" class="main-empty">アプリ起動時に Claude Code を自動起動します。ここが常にメイン pane です。</p>
+        <div id="mainTerminal" class="main-terminal" hidden></div>
+      </div>
+    </section>
+    <section class="surface workspace">
+      <div class="side-intro">左の Claude Code から AgentTeams を起動し、tmux の pane が分割されたらここに追加パネルとして表示します。</div>
+      <div class="side-panel-layout">
+        <p id="sideEmpty" class="side-empty">まだ追加 pane はありません。AgentTeams による pane split を待っています。</p>
+        <div class="side-panels-scroll">
+          <div id="sidePanels" class="side-panels"></div>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script src="./xterm.js"></script>
+  <script src="./addon-fit.js"></script>
+  <script src="./renderer.js"></script>
+</body>
+</html>
