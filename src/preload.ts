@@ -9,6 +9,8 @@ function on<T>(channel: string, cb: (payload: T) => void): () => void {
 contextBridge.exposeInMainWorld("electronAPI", {
   getClaudeSession: () => ipcRenderer.invoke("claude:get-session"),
   listClaudePanes: () => ipcRenderer.invoke("claude:list-panes"),
+  stopSession: () => ipcRenderer.invoke("claude:stop-session"),
+  restartSession: () => ipcRenderer.invoke("claude:restart-session"),
   sendMainInput: (data: string) => ipcRenderer.send("claude:main-input", data),
   resizeMainTerminal: (cols: number, rows: number) =>
     ipcRenderer.send("claude:main-resize", { cols, rows }),

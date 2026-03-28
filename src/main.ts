@@ -310,6 +310,37 @@ async function refreshTmuxState(): Promise<void> {
   }
 }
 
+async function stopClaudeSession(): Promise<void> {
+  sendLog("stopping claude session");
+  if (tmuxRefreshTimer) {
+    clearInterval(tmuxRefreshTimer);
+    tmuxRefreshTimer = null;
+  }
+  detachAllAgentPtys();
+  destroyMainTerminalPty();
+  brokenOutPanes.clear();
+  aggressiveResizeSet = false;
+
+  await runTmux(["kill-session", "-t", claudeSession.sessionName]);
+  clearClaudePanes();
+  updateClaudeSession({ status: "stopped", mainPaneId: null });
+  sendLog("claude session stopped");
+}
+
+async function restartClaudeSession(): Promise<void> {
+  await stopClaudeSession();
+  try {
+    await ensureClaudeSession();
+    attachMainTerminalStream();
+  } catch (err) {
+    sendLog(err instanceof Error ? err.message : "Claude Code の再起動に失敗しました");
+    return;
+  }
+  await refreshTmuxState();
+  tmuxRefreshTimer = setInterval(() => { void refreshTmuxState(); }, 1500);
+  sendLog("claude session restarted");
+}
+
 async function sendPaneInput(paneId: string, data: string): Promise<void> {
   const entry = agentPtys.get(paneId);
   if (entry) {
@@ -329,6 +360,8 @@ async function sendPaneInput(paneId: string, data: string): Promise<void> {
 
 ipcMain.handle("claude:get-session", async () => ({ ...claudeSession }));
 ipcMain.handle("claude:list-panes", async () => [...claudePanes.values()]);
+ipcMain.handle("claude:stop-session", async () => { await stopClaudeSession(); });
+ipcMain.handle("claude:restart-session", async () => { await restartClaudeSession(); });
 ipcMain.on("claude:send-pane-input", (_event, payload: { paneId: string; data: string }) => {
   void sendPaneInput(payload.paneId, payload.data);
 });
@@ -380,10 +413,10 @@ app.whenReady().then(async () => {
   });
 });
 
-app.on("before-quit", () => {
-  if (tmuxRefreshTimer) clearInterval(tmuxRefreshTimer);
-  detachAllAgentPtys();
-  destroyMainTerminalPty();
+app.on("before-quit", (e) => {
+  if (claudeSession.status === "stopped") return;
+  e.preventDefault();
+  void stopClaudeSession().finally(() => app.quit());
 });
 
 app.on("window-all-closed", () => {

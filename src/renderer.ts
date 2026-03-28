@@ -58,6 +58,8 @@ const comparePanes = (a: ClaudePane, b: ClaudePane) =>
 let session: ClaudeSession | null = null;
 const panes = new Map<string, ClaudePane>();
 const views = new Map<string, SideView>();
+const paneOrder: string[] = [];
+let dragSrcId: string | null = null;
 
 // ---- DOM ----
 const $status = document.getElementById("status")!;
@@ -68,6 +70,8 @@ const $mainEmpty = document.getElementById("mainEmpty") as HTMLElement;
 const $mainTerm = document.getElementById("mainTerminal") as HTMLElement;
 const $sideEmpty = document.getElementById("sideEmpty") as HTMLElement;
 const $sidePanels = document.getElementById("sidePanels")!;
+const $stopBtn = document.getElementById("stopBtn") as HTMLButtonElement;
+const $restartBtn = document.getElementById("restartBtn") as HTMLButtonElement;
 
 // ---- Main terminal (PTY stream, interactive) ----
 const mainTerm = new Terminal(termOpts(13));
@@ -81,10 +85,35 @@ $mainTerm.addEventListener("click", () => mainTerm.focus());
 function createView(pane: ClaudePane): SideView {
   const el = document.createElement("article");
   el.className = "side-pane";
+  el.draggable = true;
+  el.dataset.paneId = pane.paneId;
   el.innerHTML = `<header class="pane-header"><strong class="pane-title"></strong><span class="pane-meta"></span></header><div class="pane-terminal"></div>`;
+
+  el.addEventListener("dragstart", (e) => {
+    dragSrcId = pane.paneId;
+    el.classList.add("dragging");
+    e.dataTransfer!.effectAllowed = "move";
+  });
+  el.addEventListener("dragend", () => {
+    dragSrcId = null;
+    el.classList.remove("dragging");
+  });
+  el.addEventListener("dragover", (e) => {
+    e.preventDefault();
+    e.dataTransfer!.dropEffect = "move";
+    if (!dragSrcId || dragSrcId === pane.paneId) return;
+    const srcIdx = paneOrder.indexOf(dragSrcId);
+    const dstIdx = paneOrder.indexOf(pane.paneId);
+    if (srcIdx === -1 || dstIdx === -1 || srcIdx === dstIdx) return;
+    paneOrder.splice(srcIdx, 1);
+    paneOrder.splice(dstIdx, 0, dragSrcId);
+    reorderViewDom();
+  });
+  el.addEventListener("drop", (e) => e.preventDefault());
+
   $sidePanels.append(el);
 
-  const term = new Terminal(termOpts(12));
+  const term = new Terminal(termOpts(11));
   const fit = new FitAddon.FitAddon();
   term.loadAddon(fit);
   term.open(el.querySelector(".pane-terminal")!);
@@ -102,6 +131,13 @@ function createView(pane: ClaudePane): SideView {
   };
 }
 
+function reorderViewDom(): void {
+  for (const id of paneOrder) {
+    const v = views.get(id);
+    if (v) $sidePanels.append(v.el);
+  }
+}
+
 function removeView(id: string) {
   const v = views.get(id);
   if (!v) return;
@@ -113,6 +149,9 @@ function removeView(id: string) {
 // ---- Render (metadata only; content arrives via PTY stream) ----
 function render() {
   $sessionName.textContent = session?.sessionName ?? "";
+  const isRunning = session?.status === "running";
+  $stopBtn.disabled = !isRunning;
+  $restartBtn.disabled = isRunning || session?.status === "starting";
   $status.textContent = !session ? "Claude Code を起動しています..."
     : session.status === "starting" ? "Claude Code 起動中"
     : session.status === "stopped" ? "Claude Code が停止しています"
@@ -138,12 +177,21 @@ function render() {
   const active = new Set<string>();
   for (const pane of sorted.filter(p => !p.isMain)) {
     active.add(pane.paneId);
-    const v = views.get(pane.paneId) ?? createView(pane);
-    views.set(pane.paneId, v);
+    if (!views.has(pane.paneId)) {
+      views.set(pane.paneId, createView(pane));
+      if (!paneOrder.includes(pane.paneId)) paneOrder.push(pane.paneId);
+    }
+    const v = views.get(pane.paneId)!;
     v.titleEl.textContent = label(pane);
     v.metaEl.textContent = meta(pane);
   }
-  for (const id of views.keys()) if (!active.has(id)) removeView(id);
+  for (const id of [...views.keys()]) {
+    if (!active.has(id)) {
+      removeView(id);
+      const idx = paneOrder.indexOf(id);
+      if (idx !== -1) paneOrder.splice(idx, 1);
+    }
+  }
   $sideEmpty.hidden = active.size > 0;
 
   requestAnimationFrame(() => {
@@ -183,6 +231,16 @@ window.addEventListener("resize", render);
   for (const p of ps) panes.set(p.paneId, p);
   render();
 })();
+
+// ---- Stop / Restart ----
+$stopBtn.addEventListener("click", async () => {
+  $stopBtn.disabled = true;
+  await api.stopSession();
+});
+$restartBtn.addEventListener("click", async () => {
+  $restartBtn.disabled = true;
+  await api.restartSession();
+});
 
 // ---- Theme toggle ----
 document.documentElement.dataset.theme = document.documentElement.dataset.theme || "dark";

@@ -61,6 +61,36 @@ body {
   color: var(--text-heading);
 }
 
+.toolbar-actions {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.toolbar-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  height: 32px;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  background: var(--bg-surface);
+  color: var(--text-primary);
+  font-size: 16px;
+  cursor: pointer;
+  transition: background 0.15s, opacity 0.15s;
+}
+
+.toolbar-btn:hover {
+  background: var(--border);
+}
+
+.toolbar-btn:disabled {
+  opacity: 0.35;
+  cursor: not-allowed;
+}
+
 .toolbar-meta {
   display: flex;
   flex-direction: column;
@@ -179,8 +209,8 @@ body {
 .side-panels {
   padding: 16px;
   display: grid;
-  grid-template-columns: repeat(2, minmax(480px, 480px));
-  grid-auto-rows: minmax(280px, 480px);
+  grid-template-columns: repeat(3, minmax(340px, 340px));
+  grid-auto-rows: minmax(240px, 360px);
   gap: 16px;
   align-content: start;
   width: max-content;
@@ -189,20 +219,33 @@ body {
 }
 
 .side-pane {
-  min-height: 280px;
-  max-height: 480px;
+  min-height: 240px;
+  max-height: 360px;
   display: flex;
   flex-direction: column;
   border: 1px solid var(--border);
   border-radius: 14px;
   overflow: hidden;
   background: var(--bg-surface);
+  transition: transform 0.2s ease, opacity 0.15s;
+}
+
+.side-pane .pane-header {
+  cursor: grab;
+}
+
+.side-pane .pane-header:active {
+  cursor: grabbing;
+}
+
+.side-pane.dragging {
+  opacity: 0.35;
 }
 
 .pane-terminal {
   flex: 1;
-  min-height: 240px;
-  padding: 12px;
+  min-height: 180px;
+  padding: 8px;
   overflow-y: auto;
 }
 
