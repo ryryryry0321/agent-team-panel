@@ -15,10 +15,8 @@ import {
   parseTmuxSessionMeta,
   sortRawPanes,
 } from "./main/panes";
-import { ensureFullPath, resolveTmuxPath, runTmux, shellEscape, tokenizeTmuxInput } from "./main/tmux";
+import { runTmux, shellEscape, tokenizeTmuxInput } from "./main/tmux";
 import type { ClaudePane, ClaudeSession, RawTmuxPane } from "./main/types";
-
-ensureFullPath();
 
 let mainWindow: BrowserWindow | null = null;
 let tmuxRefreshTimer: NodeJS.Timeout | null = null;
@@ -88,7 +86,7 @@ async function attachAgentPty(paneId: string, windowId: string): Promise<void> {
 
   await runTmux(["select-window", "-t", `${linkedName}:${windowId}`]);
 
-  const p = pty.spawn(resolveTmuxPath(), ["attach-session", "-t", linkedName], {
+  const p = pty.spawn("tmux", ["attach-session", "-t", linkedName], {
     name: "xterm-256color",
     cols: 80,
     rows: 24,
@@ -127,7 +125,6 @@ function detachAllAgentPtys(): void {
 
 async function ensureClaudeSession(): Promise<void> {
   updateClaudeSession({ status: "starting" });
-  sendLog(`resolved tmux: ${resolveTmuxPath()}`);
 
   const hasSession = await runTmux(["has-session", "-t", claudeSession.sessionName]);
   if (hasSession.code === 0) {
@@ -153,22 +150,14 @@ async function ensureClaudeSession(): Promise<void> {
 function attachMainTerminalStream(): void {
   destroyMainTerminalPty();
 
-  const tmuxPath = resolveTmuxPath();
-  sendLog(`attaching pty to session ${claudeSession.sessionName} (tmux: ${tmuxPath})`);
-
-  try {
-    mainTerminalPty = pty.spawn(tmuxPath, ["attach-session", "-t", claudeSession.sessionName], {
-      name: "xterm-256color",
-      cols: 120,
-      rows: 40,
-      cwd: claudeSession.workspacePath,
-      env: { ...process.env, TERM: "xterm-256color" },
-    });
-  } catch (err) {
-    const msg = err instanceof Error ? err.message : String(err);
-    sendLog(`pty.spawn failed: ${msg} (PATH=${process.env.PATH})`);
-    throw new Error(`tmux の PTY 起動に失敗しました: ${msg}`);
-  }
+  sendLog(`attaching pty to session ${claudeSession.sessionName}`);
+  mainTerminalPty = pty.spawn("tmux", ["attach-session", "-t", claudeSession.sessionName], {
+    name: "xterm-256color",
+    cols: 120,
+    rows: 40,
+    cwd: claudeSession.workspacePath,
+    env: { ...process.env, TERM: "xterm-256color" },
+  });
 
   mainTerminalPty.onData((data) => emitToRenderer(IPC.MAIN_DATA, data));
   mainTerminalPty.onExit(() => {
