@@ -122,10 +122,10 @@ do_install() {
 create_launcher() {
   local launcher="${INSTALL_DIR}/launch.sh"
 
-  cat > "$launcher" <<'SCRIPT'
+  cat > "$launcher" <<SCRIPT
 #!/usr/bin/env bash
-cd "$(dirname "$0")"
-exec env -u ELECTRON_RUN_AS_NODE npx electron . "$@"
+cd "${INSTALL_DIR}"
+exec env -u ELECTRON_RUN_AS_NODE ./node_modules/.bin/electron . "\$@"
 SCRIPT
   chmod +x "$launcher"
 
