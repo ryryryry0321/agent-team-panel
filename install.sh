@@ -1,6 +1,7 @@
 #!/usr/bin/env bash
 #
 # Agent Team Panel — install script for quick install
+#
 # https://github.com/ryryryry0321/agent-team-panel
 #
 # Usage:
@@ -112,6 +113,9 @@ do_install() {
 
   bold "Installing dependencies..."
   npm ci --no-audit --no-fund --loglevel=error
+
+  bold "Rebuilding native modules for Electron..."
+  npx electron-rebuild
 
   bold "Building..."
   npm run build --silent

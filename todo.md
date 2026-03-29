@@ -12,5 +12,17 @@
 ## Phase2 やることが終わったら
 - OSS化
   - メンテできるコードにする
+  - READMEをまともに書く ここを盛り込む (英語, agents decects automaticallyは特徴としていれる, CI/CDラベルもつける, アプリケーションの使用法, Quickスタート,ローカルセットアップ )
   - tmux環境前提でインストールできる仕組みを作る
+     - install.shを見直す。あとインストール経由だとバグる
+```
+[main] creating session ctp-main-008e9f
+[main] attaching pty to session ctp-main-008e9f
+[main] posix_spawnp failed.
+```
+
+Phase3 
+- リリースTag付
+- dmg配布
+- なんか便利機能追加(みんなのフィードバックもらう)
 

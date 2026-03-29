@@ -6,6 +6,7 @@
   "scripts": {
     "copy-assets": "mkdir -p dist/styles && cp src/index.html dist/ && cp src/theme-init.js dist/ && cp src/styles/*.css dist/styles/",
     "copy-vendor": "cp node_modules/@xterm/xterm/css/xterm.css dist/ && cp node_modules/@xterm/xterm/lib/xterm.js dist/ && cp node_modules/@xterm/addon-fit/lib/addon-fit.js dist/",
+    "postinstall": "electron-rebuild",
     "build": "tsc && npm run copy-assets && npm run copy-vendor",
     "dev": "npm run build && concurrently -k -n ts,assets,app \"tsc -w --preserveWatchOutput\" \"chokidar 'src/**/*.html' 'src/**/*.css' 'src/theme-init.js' -c 'npm run copy-assets'\" \"env -u ELECTRON_RUN_AS_NODE electronmon .\"",
     "start": "npm run build && env -u ELECTRON_RUN_AS_NODE electron .",
