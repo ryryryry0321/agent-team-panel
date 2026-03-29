@@ -14,7 +14,8 @@
   - メンテできるコードにする
   - READMEをまともに書く ここを盛り込む (英語, agents decects automaticallyは特徴としていれる, CI/CDラベルもつける, アプリケーションの使用法,  動作保証はMacOSのみ,Quickスタート,ローカルセットアップ )
   - tmux環境前提でインストールできる仕組みを作る
-     - install.shを見直す。インストール経由だとバグる
+     - install.shを見直す。.appパッケージングをするとtmuxビューがバグってるのか
+     　ClaudeCodeが表示されていない(electron-builderで圧縮をすればtmuxを表示解決できた)
 
 Phase3 
 - リリースTag付
