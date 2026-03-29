@@ -17,9 +17,9 @@
      - install.shを見直す。.appパッケージングをするとtmuxビューがバグってるのか
      　ClaudeCodeが表示されていない(electron-builderで圧縮をすればtmuxを表示解決できた)
 
-Phase3 
+## Phase3 
 - リリースTag付
+  - ビルド失敗中
 - new version通知
-- dmg配布
 - なんか便利機能追加(みんなのフィードバックもらう)
 
