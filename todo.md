@@ -12,7 +12,7 @@
 ## Phase2 やることが終わったら
 - OSS化
   - メンテできるコードにする
-  - READMEをまともに書く ここを盛り込む (英語, agents decects automaticallyは特徴としていれる, CI/CDラベルもつける, アプリケーションの使用法, Quickスタート,ローカルセットアップ )
+  - READMEをまともに書く ここを盛り込む (英語, agents decects automaticallyは特徴としていれる, CI/CDラベルもつける, アプリケーションの使用法,  動作保証はMacOSのみ,Quickスタート,ローカルセットアップ )
   - tmux環境前提でインストールできる仕組みを作る
      - install.shを見直す。あとインストール経由だとバグる
 ```
@@ -23,6 +23,7 @@
 
 Phase3 
 - リリースTag付
+- new version通知
 - dmg配布
 - なんか便利機能追加(みんなのフィードバックもらう)
 

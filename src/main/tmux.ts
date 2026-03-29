@@ -1,16 +1,16 @@
 import { spawn } from "child_process";
 
-import { SPECIAL_INPUT_SEQUENCES, WORKSPACE_PATH } from "./constants";
+import { SPECIAL_INPUT_SEQUENCES } from "./constants";
 import type { InputToken, TmuxResult } from "./types";
 
 export function shellEscape(value: string): string {
   return `'${value.replace(/'/g, `'\\''`)}'`;
 }
 
-export function runTmux(args: string[]): Promise<TmuxResult> {
+export function runTmux(args: string[], cwd?: string): Promise<TmuxResult> {
   return new Promise((resolve) => {
     const child = spawn("tmux", args, {
-      cwd: WORKSPACE_PATH,
+      cwd,
       env: process.env,
       stdio: ["ignore", "pipe", "pipe"],
     });

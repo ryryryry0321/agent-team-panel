@@ -1,4 +1,4 @@
-import { app, BrowserWindow, ipcMain } from "electron";
+import { app, BrowserWindow, dialog, ipcMain } from "electron";
 import * as pty from "node-pty";
 import path from "path";
 
@@ -24,7 +24,7 @@ let mainTerminalPty: pty.IPty | null = null;
 let aggressiveResizeSet = false;
 
 const claudePanes = new Map<string, ClaudePane>();
-const claudeSession: ClaudeSession = createInitialClaudeSession();
+let claudeSession!: ClaudeSession;
 const brokenOutPanes = new Set<string>();
 
 type AgentPtyEntry = { pty: pty.IPty; windowId: string; dataBuf: string; linkedSessionName: string };
@@ -361,6 +361,26 @@ async function sendPaneInput(paneId: string, data: string): Promise<void> {
   void refreshTmuxState();
 }
 
+async function resolveWorkspacePath(): Promise<string> {
+  const userArgs = app.isPackaged ? process.argv.slice(1) : process.argv.slice(2);
+  const cliPath = userArgs.find((arg) => !arg.startsWith("-"));
+  if (cliPath) return path.resolve(cliPath);
+
+  const result = await dialog.showOpenDialog({
+    properties: ["openDirectory"],
+    title: "Select workspace folder",
+    message: "Select the project folder to launch Claude Code",
+    buttonLabel: "Open",
+  });
+
+  if (result.canceled || result.filePaths.length === 0) {
+    app.quit();
+    throw new Error("No workspace selected");
+  }
+
+  return result.filePaths[0];
+}
+
 ipcMain.handle(IPC.GET_SESSION, async () => ({ ...claudeSession }));
 ipcMain.handle(IPC.LIST_PANES, async () => [...claudePanes.values()]);
 ipcMain.handle(IPC.STOP_SESSION, async () => { await stopClaudeSession(); });
@@ -386,8 +406,12 @@ ipcMain.on(IPC.PANE_RESIZE, (_event, payload: { paneId: string; cols: number; ro
 });
 
 app.whenReady().then(async () => {
+  const workspacePath = await resolveWorkspacePath();
+  claudeSession = createInitialClaudeSession(workspacePath);
+
   mainWindow = new BrowserWindow({
     width: 1440, height: 900,
+    title: `Claude Team Panel — ${path.basename(workspacePath)}`,
     webPreferences: {
       preload: path.join(__dirname, "preload.js"),
       contextIsolation: true,
@@ -417,7 +441,7 @@ app.whenReady().then(async () => {
 });
 
 app.on("before-quit", (e) => {
-  if (claudeSession.status === "stopped") return;
+  if (!claudeSession || claudeSession.status === "stopped") return;
   e.preventDefault();
   void stopClaudeSession().finally(() => app.quit());
 });
