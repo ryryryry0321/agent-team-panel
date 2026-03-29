@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 #
-# Agent Team Panel — install script
+# Agent Team Panel — install script for quick install
 # https://github.com/ryryryry0321/agent-team-panel
 #
 # Usage:
