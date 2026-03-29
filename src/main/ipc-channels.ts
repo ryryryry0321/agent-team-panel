@@ -1,0 +1,16 @@
+export const IPC = {
+  GET_SESSION: "claude:get-session",
+  LIST_PANES: "claude:list-panes",
+  STOP_SESSION: "claude:stop-session",
+  RESTART_SESSION: "claude:restart-session",
+  SEND_PANE_INPUT: "claude:send-pane-input",
+  MAIN_INPUT: "claude:main-input",
+  MAIN_RESIZE: "claude:main-resize",
+  PANE_RESIZE: "claude:pane-resize",
+  MAIN_DATA: "claude:main-data",
+  SIDE_PANE_DATA: "claude:side-pane-data",
+  SESSION_UPDATED: "claude:session-updated",
+  PANE_UPDATED: "claude:pane-updated",
+  PANE_REMOVED: "claude:pane-removed",
+  APP_LOG: "app:log",
+} as const;

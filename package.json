@@ -11,8 +11,8 @@
     "start": "npm run build && env -u ELECTRON_RUN_AS_NODE electron .",
     "test": "test"
   },
-  "author": "ryoya-fukushima",
-  "license": "MIT",
+  "author": "RyoyaFukushima",
+  "license": "GPL-3.0-or-later",
   "devDependencies": {
     "@types/node": "^25.5.0",
     "chokidar-cli": "^3.0.0",

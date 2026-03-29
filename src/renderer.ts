@@ -2,36 +2,7 @@
 declare const Terminal: any;
 declare const FitAddon: { FitAddon: new () => { fit(): void } };
 
-interface ClaudeSession {
-  sessionName: string;
-  status: "starting" | "running" | "stopped";
-  mainPaneId: string | null;
-}
-
-interface ClaudePane {
-  paneId: string;
-  sessionName: string;
-  windowIndex: string;
-  windowName: string;
-  paneIndex: string;
-  paneTitle: string;
-  currentCommand: string;
-  isMain: boolean;
-  agentName: string | null;
-}
-
-interface SideView {
-  el: HTMLElement;
-  titleEl: HTMLElement;
-  metaEl: HTMLElement;
-  term: any;
-  fit: { fit(): void };
-  paneId: string;
-  lastCols: number;
-  lastRows: number;
-}
-
-const api = (window as any).electronAPI;
+const api = (window as any).electronAPI as ElectronAPI;
 const THEMES = {
   dark: { background: "#11111b", foreground: "#cdd6f4", cursor: "#89b4fa", selectionBackground: "#45475a" },
   light: { background: "#ffffff", foreground: "#4c4f69", cursor: "#1e66f5", selectionBackground: "#ccd0da" },
@@ -152,10 +123,10 @@ function render() {
   const isRunning = session?.status === "running";
   $stopBtn.disabled = !isRunning;
   $restartBtn.disabled = isRunning || session?.status === "starting";
-  $status.textContent = !session ? "Claude Code を起動しています..."
-    : session.status === "starting" ? "Claude Code 起動中"
-    : session.status === "stopped" ? "Claude Code が停止しています"
-    : `${panes.size} pane を表示中`;
+  $status.textContent = !session ? "Claude Code is starting..."
+    : session.status === "starting" ? "Claude Code is starting..."
+    : session.status === "stopped" ? "Claude Code is stopped"
+    : `${panes.size} pane view`;
 
   const sorted = [...panes.values()].sort(comparePanes);
   const mainPane = sorted.find(p => p.isMain);

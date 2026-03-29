@@ -6,6 +6,7 @@ import {
   CLAUDE_LAUNCH_COMMAND,
   createInitialClaudeSession,
 } from "./main/constants";
+import { IPC } from "./main/ipc-channels";
 import {
   extractAgentName,
   getActiveSecondarySessions,
@@ -31,6 +32,8 @@ const agentPtys = new Map<string, AgentPtyEntry>();
 const DATA_BUF_MAX = 8192;
 const SIDE_SESSION_PREFIX = "ctp-side-";
 
+// todo: メンテナンス性をあげるためのリファクタ
+
 function sidePtySessionName(paneId: string): string {
   return `${SIDE_SESSION_PREFIX}${paneId.replace("%", "")}`;
 }
@@ -42,18 +45,18 @@ function emitToRenderer(channel: string, payload: unknown): void {
 function sendLog(message: string): void {
   const formatted = `[main] ${message}`;
   console.log(formatted);
-  emitToRenderer("app:log", formatted);
+  emitToRenderer(IPC.APP_LOG, formatted);
 }
 
 function updateClaudeSession(patch: Partial<ClaudeSession>): void {
   Object.assign(claudeSession, patch);
-  emitToRenderer("claude:session-updated", { ...claudeSession });
+  emitToRenderer(IPC.SESSION_UPDATED, { ...claudeSession });
 }
 
 function removeClaudePane(paneId: string): void {
   if (!claudePanes.delete(paneId)) return;
   detachAgentPty(paneId);
-  emitToRenderer("claude:pane-removed", { paneId });
+  emitToRenderer(IPC.PANE_REMOVED, { paneId });
 }
 
 function clearClaudePanes(): void {
@@ -95,7 +98,7 @@ async function attachAgentPty(paneId: string, windowId: string): Promise<void> {
   agentPtys.set(paneId, entry);
 
   p.onData((data) => {
-    emitToRenderer("claude:side-pane-data", { paneId, data });
+    emitToRenderer(IPC.SIDE_PANE_DATA, { paneId, data });
     entry.dataBuf = (entry.dataBuf + data).slice(-DATA_BUF_MAX);
   });
 
@@ -156,7 +159,7 @@ function attachMainTerminalStream(): void {
     env: { ...process.env, TERM: "xterm-256color" },
   });
 
-  mainTerminalPty.onData((data) => emitToRenderer("claude:main-data", data));
+  mainTerminalPty.onData((data) => emitToRenderer(IPC.MAIN_DATA, data));
   mainTerminalPty.onExit(() => {
     sendLog("main terminal pty exited");
     mainTerminalPty = null;
@@ -223,7 +226,7 @@ function syncPane(rawPane: RawTmuxPane, mainPaneId: string | null): void {
     prevPane.isMain !== nextPane.isMain ||
     prevPane.agentName !== nextPane.agentName
   ) {
-    emitToRenderer("claude:pane-updated", nextPane);
+    emitToRenderer(IPC.PANE_UPDATED, nextPane);
   }
 }
 
@@ -358,22 +361,22 @@ async function sendPaneInput(paneId: string, data: string): Promise<void> {
   void refreshTmuxState();
 }
 
-ipcMain.handle("claude:get-session", async () => ({ ...claudeSession }));
-ipcMain.handle("claude:list-panes", async () => [...claudePanes.values()]);
-ipcMain.handle("claude:stop-session", async () => { await stopClaudeSession(); });
-ipcMain.handle("claude:restart-session", async () => { await restartClaudeSession(); });
-ipcMain.on("claude:send-pane-input", (_event, payload: { paneId: string; data: string }) => {
+ipcMain.handle(IPC.GET_SESSION, async () => ({ ...claudeSession }));
+ipcMain.handle(IPC.LIST_PANES, async () => [...claudePanes.values()]);
+ipcMain.handle(IPC.STOP_SESSION, async () => { await stopClaudeSession(); });
+ipcMain.handle(IPC.RESTART_SESSION, async () => { await restartClaudeSession(); });
+ipcMain.on(IPC.SEND_PANE_INPUT, (_event, payload: { paneId: string; data: string }) => {
   void sendPaneInput(payload.paneId, payload.data);
 });
-ipcMain.on("claude:main-input", (_event, data: string) => {
+ipcMain.on(IPC.MAIN_INPUT, (_event, data: string) => {
   mainTerminalPty?.write(data);
 });
-ipcMain.on("claude:main-resize", (_event, payload: { cols: number; rows: number }) => {
+ipcMain.on(IPC.MAIN_RESIZE, (_event, payload: { cols: number; rows: number }) => {
   if (mainTerminalPty && payload.cols > 0 && payload.rows > 0) {
     mainTerminalPty.resize(payload.cols, payload.rows);
   }
 });
-ipcMain.on("claude:pane-resize", (_event, payload: { paneId: string; cols: number; rows: number }) => {
+ipcMain.on(IPC.PANE_RESIZE, (_event, payload: { paneId: string; cols: number; rows: number }) => {
   if (payload.cols <= 0 || payload.rows <= 0) return;
   const entry = agentPtys.get(payload.paneId);
   if (entry) {
@@ -394,7 +397,7 @@ app.whenReady().then(async () => {
   void mainWindow.loadFile(path.join(__dirname, "index.html"));
   mainWindow.webContents.on("did-finish-load", () => {
     sendLog("renderer loaded");
-    emitToRenderer("claude:session-updated", { ...claudeSession });
+    emitToRenderer(IPC.SESSION_UPDATED, { ...claudeSession });
   });
   mainWindow.on("closed", () => { mainWindow = null; });
 
