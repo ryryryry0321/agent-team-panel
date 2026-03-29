@@ -1,25 +1,9 @@
-# Phase1 やること
-- 1.冗長そうなmain.tsのコードをもっと削る（挙動は変えない）
-- 2.やる処理に応じてファイルやディレクトリを分ける
-- 3.Mainパネル、SideのAgentパネルのビュー崩れ
-    - すべての個別SessionごとにClaudeCodeのビューを綺麗に表示したい
-    - AgentTeam起動時のイメージ (agentたちはグリッドビューのように並んでる)
-     | メインビューClaudeCode | |  Codex-Agent | ClaudeEngineer | etc.. 
+# Todo 
 
-- 1~3まで実装完了
-- 4. ClaudeCode自体の再起動ボタン、停止ボタンをつける
-    tmuxのkill？なのかもしれないけど
-## Phase2 やることが終わったら
-- OSS化
-  - メンテできるコードにする
-  - READMEをまともに書く ここを盛り込む (英語, agents decects automaticallyは特徴としていれる, CI/CDラベルもつける, アプリケーションの使用法,  動作保証はMacOSのみ,Quickスタート,ローカルセットアップ )
-  - tmux環境前提でインストールできる仕組みを作る
-     - install.shを見直す。.appパッケージングをするとtmuxビューがバグってるのか
-     　ClaudeCodeが表示されていない(electron-builderで圧縮をすればtmuxを表示解決できた)
+  - READMEをまともに書く ここを盛り込む (英語, agents decects automaticallyは特徴としていれる, CI/CDラベルもつける, アプリケーションの使用法,  動作保証はMacOSのみ,Quickスタート,ローカルセットアップ, tmux環境前提は伝えとく, shだとnodeもいるか )
+  
+  - Codexにコードの問題点洗い出してもらってリファクタする
 
-## Phase3 
-- リリースTag付
-  - ビルド失敗中
-- new version通知
-- なんか便利機能追加(みんなのフィードバックもらう)
+  - .appファイルのリファクタ
+
 
