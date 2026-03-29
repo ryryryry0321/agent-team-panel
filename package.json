@@ -18,12 +18,12 @@
   "author": "RyoyaFukushima",
   "license": "GPL-3.0-or-later",
   "devDependencies": {
-    "@electron/packager": "^18.3.6",
+    "@electron/packager": "^19.1.0",
     "@electron/rebuild": "^4.0.3",
     "@types/node": "^25.5.0",
     "chokidar-cli": "^3.0.0",
     "concurrently": "^9.2.1",
-    "electron": "^41.0.4",
+    "electron": "^41.1.0",
     "electronmon": "^2.0.4",
     "typescript": "^6.0.2"
   },

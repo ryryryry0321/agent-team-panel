@@ -132,7 +132,7 @@ build_app() {
   npm ci --no-audit --no-fund --loglevel=error
 
   bold "Rebuilding native modules for Electron..."
-  npx @electron/rebuild
+  ./node_modules/.bin/electron-rebuild
 
   bold "Building..."
   npm run build --silent
@@ -143,7 +143,7 @@ build_app() {
 install_macos() {
   bold "Packaging macOS application..."
 
-  npx @electron/packager . "$APP_NAME" \
+  ./node_modules/.bin/electron-packager . "$APP_NAME" \
     --platform=darwin \
     --arch="$ARCH" \
     --out=release \
@@ -178,7 +178,7 @@ install_macos() {
 install_linux() {
   bold "Packaging Linux application..."
 
-  npx @electron/packager . "$APP_NAME" \
+  ./node_modules/.bin/electron-packager . "$APP_NAME" \
     --platform=linux \
     --arch="$ARCH" \
     --out=release \
