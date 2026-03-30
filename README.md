@@ -12,6 +12,10 @@ When Claude Code spawns parallel agents, each one runs in its own tmux pane. Age
 
 > **Platform support:** macOS only. Linux builds compile but are not tested or guaranteed.
 
+<img width="500" alt="スクリーンショット 2026-03-30 9 15 16" src="https://github.com/user-attachments/assets/b839daa0-329b-41dd-8455-199da4e4c849" />
+<img width="500" height="857" alt="スクリーンショット 2026-03-30 9 15 29" src="https://github.com/user-attachments/assets/7b9d0bd2-0826-41d0-bca3-8cff79b41973" />
+
+
 ## Features
 
 - **Automatic agent detection** — discovers new agent panes via tmux polling; no configuration needed
